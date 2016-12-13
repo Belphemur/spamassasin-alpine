@@ -6,7 +6,9 @@ ENV PERL5_DEBUG_ROLE="client"
 ENV PERL5_DEBUG_HOST=172.17.0.1
 ENV PERL5_DEBUG_PORT=7765
 
-RUN apk add  --no-cache spamassassin build-base perl-dev perl-yaml perl-json perl-log-log4perl perl-libwww perl-crypt-ssleay perl-digest-hmac perl-digest-sha1 perl-http-message perl-mime-lite perl-net-cidr-lite perl-io-gzip  bash vim wget
+WORKDIR /root/
+
+RUN apk add  --no-cache build-base perl-dev perl-yaml perl-json perl-log-log4perl perl-libwww perl-crypt-ssleay perl-digest-hmac perl-http-message perl-mime-lite perl-net-cidr-lite perl-io-gzip  bash vim wget tar perl-mail-dkim perl-netaddr-ip perl-digest-sha1 perl-html-parser perl-net-dns
 
 RUN apk add perl-json-xs --update-cache --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
@@ -18,15 +20,18 @@ RUN cpan install CPAN && cpan reload cpan
 
 RUN cpan Time::Piece Devel::Camelcadedb
 
+RUN wget http://mirror.its.dal.ca/apache//spamassassin/source/Mail-SpamAssassin-3.4.1.tar.gz -O SpamAssassin.tar.gz\
+    && tar xfv SpamAssassin.tar.gz \
+    && rm SpamAssassin.tar.gz \
+    && mv Mail-SpamAssassin-* SpamAssassin
+
 #Remove the -T to run with Camelcadedb
-RUN chmod 0700 /usr/bin/spamassassin \
-    && sed -i -e 's/perl -T/perl -d:Camelcadedb/g' /usr/bin/spamassassin \
-    && chmod 0555 /usr/bin/spamassassin \
-    && mkdir ~/test-files/ \
-    && sa-update
-
-COPY sample-spam.txt ~/test-files/spam.txt
-COPY sample-nonspam.txt ~/test-files/ham.txt
-
-ENTRYPOINT ["spamassassin"]
-
+RUN mkdir ~/test-files/ \
+    && cd SpamAssassin \
+    && perl Makefile.PL \
+    && make \
+    && chmod 0700 spamassassin \
+    && sed -i -e 's/perl -T/perl -d:Camelcadedb/g' spamassassin \
+    && chmod 0555 spamassassin \
+    && make install \
+    && sa-update --no-gpg
