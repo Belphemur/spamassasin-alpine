@@ -36,16 +36,18 @@ RUN mkdir ~/test-files/ \
     && mkdir -p /var/lib/spamassassin\
        /etc/mail/spamassassin/sa-update-keys/  \
        /usr/local/share/spamassassin \
-       /usr/zs/etc/sa \
+       /usr/zs/etc/ \
        /root/SpamAssassin/sa-plugins \
     && ln -s /root/SpamAssassin/sa-plugins/lib/ZS /root/SpamAssassin/lib/ZS \ 
+    && ln -s /root/SpamAssassin/sa-plugins/lists /usr/zs/etc/sa \
     && make conf__install \
     && wget http://spamassassin.apache.org/updates/GPG.KEY \
     &&  ./sa-update --import GPG.KEY \
     && ./sa-update \
     && rm GPG.KEY \
     && rm -rf rules \
-    && mv sample*.txt ../test-files/
+    && mv sample*.txt ../test-files/ \
+    && echo "alias SA='spamassassin -D 2>&1 <'" >> /root/.bashrc
 
 ENV PATH=/root/SpamAssassin/:$PATH
 
