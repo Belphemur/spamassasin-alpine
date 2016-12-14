@@ -41,6 +41,12 @@ RUN mkdir ~/test-files/ \
     && wget http://spamassassin.apache.org/updates/GPG.KEY \
     &&  ./sa-update --import GPG.KEY \
     && ./sa-update \
-    && rm -rf rules
+    && rm GPG.KEY \
+    && rm -rf rules \
+    && mv sample*.txt ../test-files/
 
-WORKDIR /root/SpamAssassin/
+ENV PATH=/root/SpamAssassin/:$PATH
+
+WORKDIR /root/test-files/
+VOLUME /etc/mail/spamassassin
+VOLUME /root/test-files/
