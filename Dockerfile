@@ -8,7 +8,7 @@ ENV PERL5_DEBUG_PORT=7765
 
 WORKDIR /root/
 
-RUN apk add  --no-cache build-base perl-dev perl-yaml perl-json perl-log-log4perl perl-libwww perl-crypt-ssleay perl-digest-hmac perl-http-message perl-mime-lite perl-net-cidr-lite perl-io-gzip  bash vim wget tar perl-mail-dkim perl-netaddr-ip perl-digest-sha1 perl-html-parser perl-net-dns gnupg
+RUN apk add  --no-cache build-base perl-dev perl-yaml perl-json perl-log-log4perl perl-libwww perl-crypt-ssleay perl-digest-hmac perl-http-message perl-mime-lite perl-net-cidr-lite perl-io-gzip  bash vim wget tar perl-mail-dkim perl-netaddr-ip perl-digest-sha1 perl-html-parser perl-net-dns gnupg perl-yaml-syck perl-switch
 
 RUN apk add perl-json-xs --update-cache --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
@@ -18,7 +18,7 @@ RUN perl -MCPAN -e 'my $c = "CPAN::HandleConfig"; $c->load(doit => 1, autoconfig
 #Update CPAN if needed
 RUN cpan install CPAN && cpan reload cpan
 
-RUN cpan Time::Piece Devel::Camelcadedb
+RUN cpan Time::Piece Email::AddressParser Devel::Camelcadedb
 
 RUN wget http://mirror.its.dal.ca/apache//spamassassin/source/Mail-SpamAssassin-3.4.1.tar.gz -O SpamAssassin.tar.gz\
     && tar xfv SpamAssassin.tar.gz \
@@ -37,6 +37,8 @@ RUN mkdir ~/test-files/ \
        /etc/mail/spamassassin/sa-update-keys/  \
        /usr/local/share/spamassassin \
        /usr/zs/etc/sa \
+       /root/SpamAssassin/sa-plugins \
+    && ln -s /root/SpamAssassin/sa-plugins/lib/ZS /root/SpamAssassin/lib/ZS \ 
     && make conf__install \
     && wget http://spamassassin.apache.org/updates/GPG.KEY \
     &&  ./sa-update --import GPG.KEY \
