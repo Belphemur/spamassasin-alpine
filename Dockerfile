@@ -1,5 +1,5 @@
 FROM alpine:edge
-MAINTAINER Antoine Aflalo <antoine@aaflalo.me>
+MAINTAINER Antoine Aflalo <dev@zerospam.ca>
 
 #Configure CamelCadeDB
 ENV PERL5_DEBUG_ROLE="client"
